@@ -11,16 +11,19 @@ graphene = "*"
 python-dotenv = "*"
 gunicorn = "*"
 pyopenssl = "*"
+requests = "*"
+urllib3 = "==1.23"
+certifi = "*"
 
 [dev-packages]
 
 [scripts]
-dev = "env FLASK_APP=src/app.py env FLASK_ENV=development flask run"
-prod = "env FLASK_APP=src/app.py env FLASK_ENV=production gunicorn --bind 0.0.0.0:5000 -w 8 wsgi:app --timeout 10000"
+dev = "env REQUESTS_CA_BUNDLE=secrets/cert.pem env FLASK_APP=src/app.py env FLASK_ENV=development flask run"
+prod = "env REQUESTS_CA_BUNDLE=secrets/cert.pem env FLASK_APP=src/app.py env FLASK_ENV=production gunicorn --bind 0.0.0.0:5000 -w 8 wsgi:app --timeout 10000"
 test = "python -m pytest"
 test-watch = "ptw --runner 'python -m pytest -s'"
-dev-window = "set FLASK_APP=src/app.py & set FLASK_ENV=development & flask run --cert=secrets/cert.pem --key=secrets/key.pem"
-prod-window = "set FLASK_APP=src/app.py & set FLASK_ENV=production & gunicorn --certfile secrets/cert.pem --keyfile secrets/key.pem --bind 0.0.0.0:5000 -w 8 & wsgi:app --timeout 10000"
+dev-window = "set REQUESTS_CA_BUNDLE=secrets/cert.pem & set FLASK_APP=src/app.py & set FLASK_ENV=development & flask run --cert=secrets/cert.pem --key=secrets/key.pem"
+prod-window = "set REQUESTS_CA_BUNDLE=secrets/cert.pem & set FLASK_APP=src/app.py & set FLASK_ENV=production & gunicorn --certfile secrets/cert.pem --keyfile secrets/key.pem --bind 0.0.0.0:5000 -w 8 & wsgi:app --timeout 10000"
 test-window = "python -m pytest"
 test-watch-window = "ptw --runner 'python -m pytest -s'"
 

@@ -5,6 +5,9 @@ from gql.schema import Schema
 from dotenv import load_dotenv
 
 import os
+import ssl
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 app = Flask(__name__, static_url_path='', template_folder='./public', static_folder='./public')
 CORS(app)
@@ -31,6 +34,7 @@ app.add_url_rule(
     'graphql',
     schema=Schema,
     graphiql=True,
+    pretty=True,
     #pass request to context to perform resolver validation
     get_context=lambda: {'request': request}
 ))
