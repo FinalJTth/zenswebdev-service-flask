@@ -1,0 +1,28 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+flask-graphql = "*"
+flask-cors = "*"
+graphene = "*"
+python-dotenv = "*"
+gunicorn = "*"
+pyopenssl = "*"
+
+[dev-packages]
+
+[scripts]
+dev = "env FLASK_APP=src/app.py env FLASK_ENV=development flask run"
+prod = "env FLASK_APP=src/app.py env FLASK_ENV=production gunicorn --bind 0.0.0.0:5000 -w 8 wsgi:app --timeout 10000"
+test = "python -m pytest"
+test-watch = "ptw --runner 'python -m pytest -s'"
+dev-window = "set FLASK_APP=src/app.py & set FLASK_ENV=development & flask run --cert=secrets/cert.pem --key=secrets/key.pem"
+prod-window = "set FLASK_APP=src/app.py & set FLASK_ENV=production & gunicorn --certfile secrets/cert.pem --keyfile secrets/key.pem --bind 0.0.0.0:5000 -w 8 & wsgi:app --timeout 10000"
+test-window = "python -m pytest"
+test-watch-window = "ptw --runner 'python -m pytest -s'"
+
+[requires]
+python_version = "3.9"
