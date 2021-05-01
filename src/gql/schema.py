@@ -1,5 +1,5 @@
 import graphene
-import requests
+from utils.requestsSession import backend
 from utils.buildgql import buildgql
 import json
 import re
@@ -35,7 +35,7 @@ class Query(graphene.ObjectType):
     if (re.match(r'^[a-zA-Z0-9]{8,30}$', username)) is None:
       return ValidateObject(True, 'Username must be between 8 - 30 characters')
     query = buildgql('query', 'User', { 'username': username }, ['username'])
-    res = requests.post('https://localhost:9000/graphql', json={ 'query': query })
+    res = backend.post('/graphql', json={ 'query': query })
     if (res.status_code == 200):
       if (len(res.json()['data']['query']) > 0):
         return ValidateObject(True, 'Username has already been registered')
@@ -55,7 +55,7 @@ class Query(graphene.ObjectType):
     if (re.match(r'^[a-zA-Z0-9-._]+@([a-zA-Z])+[.]{1,1}([a-zA-Z]){2,4}$', email)) is None:
       return ValidateObject(True, 'Invalid domain extention')
     query = buildgql('query', 'User', { 'email': email }, ['email'])
-    res = requests.post('https://localhost:9000/graphql', json={ 'query': query }, verify=False)
+    res = backend.post('/graphql', json={ 'query': query })
     if (res.status_code == 200):
       if (len(res.json()['data']['query']) > 0):
         return ValidateObject(True, 'Email has already been registered')
