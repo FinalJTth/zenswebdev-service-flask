@@ -14,6 +14,7 @@ pyopenssl = "*"
 requests = "*"
 urllib3 = "==1.23"
 certifi = "*"
+tensorflow = "*"
 
 [dev-packages]
 
@@ -28,4 +29,4 @@ test-window = "python -m pytest"
 test-watch-window = "ptw --runner 'python -m pytest -s'"
 
 [requires]
-python_version = "3.9"
+python_version = "3.8.9"
