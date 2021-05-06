@@ -1,8 +1,22 @@
 import graphene
+from graphql import GraphQLSchema
+
 from utils.requestsSession import backend
 from utils.buildgql import buildgql
+
 import json
 import re
+import base64
+import warnings
+
+from io import BytesIO
+from PIL import Image
+
+import numpy as np
+from keras.preprocessing import image
+from keras.applications import inception_v3
+
+import requests
 
 class TestMutation(graphene.Mutation):
   class Arguments:
@@ -18,11 +32,21 @@ class ValidateObject(graphene.ObjectType):
   isInvalid = graphene.Boolean(required=True)
   message = graphene.String()
 
+class ClassifyReturnType(graphene.ObjectType):
+  id = graphene.String()
+  object = graphene.String()
+  confident = graphene.Float()
+
+class ClassifyObject(graphene.ObjectType):
+  predictions = graphene.List(ClassifyReturnType)
+
 class Query(graphene.ObjectType):
   HealthCheck = graphene.Boolean(required=True)
   ValidateUsername = graphene.Field(ValidateObject, username=graphene.String(required=True))
   ValidateEmail = graphene.Field(ValidateObject, email=graphene.String(required=True))
   ValidatePassword = graphene.Field(ValidateObject, password=graphene.String(required=True))
+
+  ClassifyImage = graphene.Field(ClassifyObject, inputImage=graphene.String(required=True))
   
   def resolve_HealthCheck(root, info):
     return True
@@ -73,7 +97,37 @@ class Query(graphene.ObjectType):
     if (re.match(r'[A-Za-z0-9!"#$%&\'()*+,-./:;<>=?@\[\]{}\\\^_`~]{8,30}$', password)) is None:
       return ValidateObject(True, 'Password must be between 8 - 30 characters')
     return ValidateObject(False, 'Password is valid')
+
+  def resolve_ClassifyImage(root, info, inputImage):
+    img_byte_filtered = re.sub('^data:image/.+;base64,|data: image/.+;base64 ', '', inputImage)
+    img = Image.open(BytesIO(base64.b64decode(img_byte_filtered)))
+    img = img.convert('RGB')
+    img = img.resize((224, 224))
+    img = image.img_to_array(img) / 255
+    img = img.astype('float16')
+
+    payload = {
+      'instances': [img.tolist()]
+    }
+
+    r = requests.post('http://localhost:10000/v1/models/ImageClassifier:predict', json=payload)
+    pred = json.loads(r.content.decode('utf-8'))
+    pred_res = inception_v3.decode_predictions(np.array(pred['predictions']))[0]
+
+    print(json.dumps(pred_res))
+
+    predictions = []
+    for result in pred_res:
+      result_dict = {}
+      result_dict['id'] = result[0]
+      result_dict['object'] = result[1]
+      result_dict['confident'] = result[2]
+      predictions.append(result_dict)
+    predictions = { 'predictions' : predictions }
+    return predictions
+
 class Mutation(graphene.ObjectType):
   TestMutation = TestMutation.Field()
 
 Schema = graphene.Schema(query=Query, mutation=Mutation)
+#assert isinstance(Schema.graphql_schema, GraphQLSchema)
