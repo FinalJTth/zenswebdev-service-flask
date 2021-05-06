@@ -5,16 +5,19 @@ name = "pypi"
 
 [packages]
 flask = "*"
-flask-graphql = "*"
 flask-cors = "*"
-graphene = "*"
+graphene = ">=3.0.0b7"
 python-dotenv = "*"
 gunicorn = "*"
 pyopenssl = "*"
-requests = "*"
+requests = {extras = ["security"], version = "*"}
 urllib3 = "==1.23"
 certifi = "*"
+keras = "*"
 tensorflow = "*"
+pillow = "*"
+graphql-core = ">=3.1.4"
+graphql-server = ">=3.0.0b3"
 
 [dev-packages]
 
@@ -27,6 +30,11 @@ dev-window = "set REQUESTS_CA_BUNDLE=secrets/cert.pem & set FLASK_APP=src/app.py
 prod-window = "set REQUESTS_CA_BUNDLE=secrets/cert.pem & set FLASK_APP=src/app.py & set FLASK_ENV=production & gunicorn --certfile secrets/cert.pem --keyfile secrets/key.pem --bind 0.0.0.0:5000 -w 8 & wsgi:app --timeout 10000"
 test-window = "python -m pytest"
 test-watch-window = "ptw --runner 'python -m pytest -s'"
+setup-model = "python src/ml/setup.py"
+test-model = "python src/ml/test_model.py -i src/ml/test_data/car.jpg"
+dev-tfs = "env REQUESTS_CA_BUNDLE=secrets/cert.pem env FLASK_APP=src/app.py env FLASK_ENV=development env FLASK_DEBUG=1 python src/start.py"
+prod-tfs = "env REQUESTS_CA_BUNDLE=secrets/cert.pem env FLASK_APP=src/app.py env FLASK_ENV=production env FLASK_DEBUG=1 python src/start.py"
+test-file = "python src/test.py"
 
 [requires]
-python_version = "3.8.9"
+python_version = "3.7.10"
