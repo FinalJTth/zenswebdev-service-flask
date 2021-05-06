@@ -1,3 +1,4 @@
+.env
 secrets/
 .vscode/settings.json
 src/ml/model/
